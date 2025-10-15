@@ -7,7 +7,7 @@ export class UserRepository {
 		let con = await pool.getConnection();
 		try {
 			const [rows] = await con.query('select *from users where username = ?', [username]);
-			return rows[0] || null;
+			return rows || null;
 		} catch (error: any) {
 			throw error.message;
 		} finally {
@@ -19,9 +19,9 @@ export class UserRepository {
 		const con = await pool.getConnection();
 		try {
 			const [rows] = await con.query('select *from users where email = ?', [email]);
-			return rows[0] || null;
+			return rows || null;
 		} catch (error: any) {
-			throw error.message;
+			throw error;
 		} finally {
 			if (con) await con.release();
 		}

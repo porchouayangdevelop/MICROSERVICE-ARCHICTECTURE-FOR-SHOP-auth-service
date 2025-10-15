@@ -26,9 +26,9 @@ export async function roleRoutes(
 		return roleController.getRole.bind(roleController);
 	});
 	
-	app.get('/roles/:permissions', {
-		preHandler: [authenticate, rbacMiddleware.requirePermissions(['roles.read'])]
-	}, () => roleController.getRolePermissions.bind(roleController));
+	// app.get('/roles/:permissions', {
+	// 	preHandler: [authenticate, rbacMiddleware.requirePermissions(['roles.read'])]
+	// }, () => roleController.getRolePermissions.bind(roleController));
 	
 	
 	app.post('/roles', {

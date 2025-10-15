@@ -40,4 +40,5 @@ const AppConfig: ServerConfig = {
 	SMTP_PASSWORD: process.env.SMTP_PASSWORD
 }
 
+
 export {AppConfig}

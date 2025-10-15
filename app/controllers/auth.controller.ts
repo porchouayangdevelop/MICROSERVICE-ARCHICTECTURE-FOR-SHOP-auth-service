@@ -30,6 +30,8 @@ export class AuthController {
 			const ipAddress = request.ip;
 			const result = await this.authService.register(request.body, ipAddress);
 			
+			console.log(result)
+			
 			reply.status(201).send(ApiResponse.success(result, 'User Registered successfully'));
 		} catch (err: any) {
 			console.log(ApiResponse.error(err, 500));
@@ -93,7 +95,7 @@ export class AuthController {
 		}
 	}
 	
-	async logoutAll(request: AuthRequest & FastifyRequest<{}>, reply: FastifyReply) {
+	async logoutAll(request: AuthRequest & FastifyRequest, reply: FastifyReply) {
 		try {
 			const ipAddress = request.ip;
 			await this.authService.logoutAll(request.user!.id, ipAddress);
@@ -175,7 +177,7 @@ export class AuthController {
 		}
 	}
 	
-	async getCurrentUser(request:AuthRequest & FastifyRequest<{}>, reply: FastifyReply) {
+	async getCurrentUser(request:AuthRequest & FastifyRequest, reply: FastifyReply) {
 		try {
 			const user = await this.authService.getCurrentUser(request.user!.id);
 			reply.status(200).send(ApiResponse.success(user));
@@ -185,7 +187,7 @@ export class AuthController {
 			.send(ApiResponse.error(err.message, 400));
 		}
 	}
-	async getProfile(request:AuthRequest & FastifyRequest<{}>, reply: FastifyReply) {
+	async getProfile(request:AuthRequest & FastifyRequest, reply: FastifyReply) {
 		try{
 			const user = await this.authService.getCurrentUser(request.user!.id);
 			reply.status(200).send(ApiResponse.success(user));

@@ -9,6 +9,11 @@ export interface TokenPayload {
 	permissions?: string[];
 }
 
+export interface VerifyTokenPayload {
+	id: number;
+	type: string;
+}
+
 export interface TokenPair {
 	accessToken: string;
 	refreshToken: string;
@@ -51,9 +56,33 @@ export class TokenService {
 		}
 	}
 	
-	async generatePasswordResetToken(id: number): Promise<string> {
+	async generatePasswordResetToken(userID: number): Promise<string> {
 		try {
-		
+			const resetToken = jwt.sign({
+				id: userID,
+				type: 'password_reset',
+			}, this.jwtSecret, {
+				expiresIn: '1h',
+				issuer: 'auth-service',
+				algorithm: 'HS512'
+			})
+			return resetToken
+		} catch (error: any) {
+			throw new Error(error.message);
+		}
+	}
+	
+	async generateEmailVerificationToken(userId: number): Promise<string> {
+		try {
+			const verify = jwt.sign({
+				id: userId,
+				type: 'email_verification',
+			}, this.jwtSecret, {
+				expiresIn: '24h',
+				issuer: 'auth-service',
+				algorithm: 'HS512'
+			})
+			return verify;
 		} catch (error: any) {
 			throw new Error(error.message);
 		}
@@ -99,18 +128,34 @@ export class TokenService {
 		}
 	}
 	
-	async verifyPasswordReset(token: string): Promise<void> {
+	async verifyPasswordReset(token: string): Promise<{ id: number }> {
 		try {
+			const decoded = jwt.verify(token, this.jwtSecret) as VerifyTokenPayload;
+			if (decoded.type !== 'password_reset') {
+				throw new Error('Invalid reset token type');
+			}
+			
 			await this.sessionRepo.verifyPasswordReset(token);
+			return {
+				id: decoded.id
+			}
 			
 		} catch (error: any) {
 			throw new Error('verifyPasswordReset', error.message);
 		}
 	}
 	
-	async verifyEmailToken(token: string): Promise<void> {
+	async verifyEmailToken(token: string): Promise<{ id: number, userId: number }> {
 		try {
+			const decoded = jwt.verify(token, this.jwtSecret) as VerifyTokenPayload;
+			if (decoded.type !== 'email_verification') {
+				throw new Error('Invalid reset token type');
+			}
+			
 			await this.sessionRepo.verifyEmailToken(token);
+			
+			return {id: decoded.id, userId: decoded.id}
+			
 		} catch (error: any) {
 			throw new Error('verifyEmailToken', error.message);
 		}
